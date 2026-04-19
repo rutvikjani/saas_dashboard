@@ -4,32 +4,36 @@ const ActivityLog = require('../models/ActivityLog');
 
 exports.getOverview = async (req, res) => {
   try {
-    const totalCustomers = await Customer.countDocuments();
-    const activeCustomers = await Customer.countDocuments({ status: 'active' });
-
-    // Monthly new customers
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const newThisMonth = await Customer.countDocuments({ createdAt: { $gte: startOfMonth } });
 
-    // Revenue data
-    const revenueData = await Revenue.find().sort('month').limit(12);
-    const currentRevenue = revenueData[revenueData.length - 1] || { mrr: 0, arr: 0, churnRate: 0 };
-
-    // Activity feed
-    const activities = await ActivityLog.find().sort('-createdAt').limit(10).populate('userId', 'name avatar');
-
-    // Growth data
-    const monthlyGrowth = await Customer.aggregate([
-      {
-        $group: {
-          _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { '_id.year': 1, '_id.month': 1 } },
-      { $limit: 12 }
+    // Run all queries in parallel instead of one by one
+    const [
+      totalCustomers,
+      activeCustomers,
+      newThisMonth,
+      revenueData,
+      activities,
+      monthlyGrowth,
+    ] = await Promise.all([
+      Customer.countDocuments(),
+      Customer.countDocuments({ status: 'active' }),
+      Customer.countDocuments({ createdAt: { $gte: startOfMonth } }),
+      Revenue.find().sort('month').limit(12).lean(),
+      ActivityLog.find().sort('-createdAt').limit(10).populate('userId', 'name avatar').lean(),
+      Customer.aggregate([
+        {
+          $group: {
+            _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { '_id.year': 1, '_id.month': 1 } },
+        { $limit: 12 }
+      ]),
     ]);
+
+    const currentRevenue = revenueData[revenueData.length - 1] || { mrr: 0, arr: 0, churnRate: 0 };
 
     res.json({
       kpis: {
@@ -50,9 +54,8 @@ exports.getOverview = async (req, res) => {
 };
 
 exports.getTraffic = async (req, res) => {
-  // Mock traffic analytics data
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const traffic = months.map((month, i) => ({
+  const traffic = months.map((month) => ({
     month,
     visits: Math.floor(10000 + Math.random() * 50000),
     uniqueVisitors: Math.floor(5000 + Math.random() * 30000),

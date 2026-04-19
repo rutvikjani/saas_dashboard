@@ -183,10 +183,15 @@ async function seed() {
   await ActivityLog.insertMany(logs);
   console.log('📝 Created activity logs');
 
-  console.log('\n✅ Seed complete!');
-  console.log('📧 Admin: admin@demo.com / password123');
-  console.log('📧 Staff: staff@demo.com / password123');
-  process.exit(0);
+  try {
+  await Customer.collection.createIndex({ status: 1 }, { background: true });
+  await Customer.collection.createIndex({ createdAt: -1 }, { background: true });
+  await Revenue.collection.createIndex({ month: 1 }, { background: true });
+  await ActivityLog.collection.createIndex({ createdAt: -1 }, { background: true });
+  console.log('✅ Indexes created');
+} catch (e) {
+  console.log('Indexes already exist');
+}
 }
 
 seed().catch(err => { console.error(err); process.exit(1); });
