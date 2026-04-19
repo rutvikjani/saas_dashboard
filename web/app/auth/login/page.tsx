@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/authStore';
@@ -11,6 +11,12 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: 'admin@demo.com', password: 'password123' });
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    // Wake up Render API silently in background
+    fetch(`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/api/health`)
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
