@@ -6,197 +6,25 @@ A production-ready full-stack SaaS admin dashboard built with Next.js 14, Expres
 
 ## Features
 
-- **Auth**: JWT access + refresh tokens, role-based (Admin/Staff), protected routes
-- **Overview**: KPI cards, revenue chart, user growth, activity feed
-- **Analytics**: Traffic stats, device sources, channel breakdown, monthly table
-- **Customers**: Search, filter, pagination, CRUD with modals
-- **Revenue**: MRR/ARR, churn, breakdown charts, billing summary
-- **Projects**: Kanban board with drag status updates, progress tracking
-- **Settings**: Profile, company, password, theme, notifications
-- **UI**: Dark/light mode, skeleton loaders, toast notifications, responsive
+- **Auth** — JWT access + refresh tokens, role-based (Admin/Staff), protected routes
+- **Overview** — KPI cards, revenue chart, user growth, activity feed
+- **Analytics** — Traffic stats, device sources, channel breakdown *(Admin only)*
+- **Customers** — Search, filter, pagination, CRUD *(Staff: view only)*
+- **Revenue** — MRR/ARR, churn, breakdown charts, billing summary *(Admin only)*
+- **Projects** — Kanban board with task status updates, progress tracking
+- **Settings** — Profile, password, theme, notifications *(Company tab: Admin only)*
+- **UI** — Dark/light mode, skeleton loaders, toast notifications, fully responsive
 
----
+## Role-Based Access
 
-## Quick Start
-
-### Prerequisites
-- Node.js 18+
-- MongoDB (local or Atlas)
-- npm / yarn
-
----
-
-### 1. Clone & Install
-
-```bash
-# Install API deps
-cd api
-npm install
-cp .env.example .env   # Fill in your values
-
-# Install web deps
-cd ../web
-npm install
-cp .env.example .env.local
-```
-
-### 2. Configure Environment
-
-**`api/.env`**
-```
-PORT=5000
-MONGO_URI=mongodb://localhost:27017/saas_dashboard
-JWT_SECRET=your_super_secret_jwt_key_here
-JWT_REFRESH_SECRET=your_refresh_secret_here
-CLIENT_URL=http://localhost:3000
-NODE_ENV=development
-```
-
-**`web/.env.local`**
-```
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-```
-
-### 3. Seed Database
-
-```bash
-cd api
-npm run seed
-```
-
-This creates:
-- Admin user: `admin@demo.com` / `password123`
-- Staff user: `staff@demo.com` / `password123`
-- 50 sample customers
-- 12 months of revenue data
-- 4 projects with tasks
-- Activity logs
-
-### 4. Run Development
-
-```bash
-# Terminal 1 — API
-cd api
-npm run dev       # Runs on http://localhost:5000
-
-# Terminal 2 — Web
-cd web
-npm run dev       # Runs on http://localhost:3000
-```
-
-Open http://localhost:3000 and log in with the demo credentials.
-
----
-
-## Project Structure
-
-```
-saas-dashboard/
-├── api/                          # Express.js Backend
-│   ├── controllers/              # Route handlers
-│   │   ├── authController.js
-│   │   ├── customerController.js
-│   │   ├── analyticsController.js
-│   │   ├── revenueController.js
-│   │   └── projectController.js
-│   ├── middleware/
-│   │   └── auth.js               # JWT auth + role guard
-│   ├── models/                   # Mongoose schemas
-│   │   ├── User.js
-│   │   ├── Customer.js
-│   │   ├── Revenue.js
-│   │   ├── Project.js
-│   │   └── ActivityLog.js
-│   ├── routes/                   # Express routers
-│   │   ├── auth.js
-│   │   ├── users.js
-│   │   ├── customers.js
-│   │   ├── analytics.js
-│   │   ├── revenue.js
-│   │   └── projects.js
-│   ├── utils/
-│   │   ├── db.js                 # MongoDB connection
-│   │   ├── jwt.js                # Token helpers
-│   │   └── seed.js               # Data seeder
-│   ├── server.js                 # Entry point
-│   └── package.json
-│
-└── web/                          # Next.js 14 Frontend
-    ├── app/
-    │   ├── auth/
-    │   │   ├── login/page.tsx
-    │   │   └── register/page.tsx
-    │   └── dashboard/
-    │       ├── layout.tsx        # Auth guard + sidebar
-    │       ├── page.tsx          # Overview
-    │       ├── analytics/page.tsx
-    │       ├── customers/page.tsx
-    │       ├── revenue/page.tsx
-    │       ├── projects/page.tsx
-    │       └── settings/page.tsx
-    ├── components/
-    │   ├── layout/
-    │   │   ├── Sidebar.tsx
-    │   │   └── Topbar.tsx
-    │   └── ui/
-    │       └── index.tsx         # Card, KpiCard, Modal, Table, Badge, etc.
-    ├── hooks/
-    │   └── useQueries.ts         # React Query hooks
-    ├── lib/
-    │   ├── api.ts                # Axios + interceptors
-    │   ├── authStore.ts          # Zustand auth store
-    │   ├── themeStore.ts         # Zustand theme store
-    │   └── utils.ts              # Formatters + helpers
-    └── package.json
-```
-
----
-
-## API Endpoints
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/auth/register` | — | Register new user |
-| POST | `/api/auth/login` | — | Login |
-| POST | `/api/auth/refresh` | Cookie | Refresh access token |
-| POST | `/api/auth/logout` | — | Logout + clear cookie |
-| GET | `/api/auth/me` | ✓ | Get current user |
-| GET | `/api/users` | Admin | List all users |
-| PUT | `/api/users/profile` | ✓ | Update profile |
-| PUT | `/api/users/password` | ✓ | Change password |
-| GET | `/api/customers` | ✓ | List + filter customers |
-| POST | `/api/customers` | ✓ | Create customer |
-| PUT | `/api/customers/:id` | ✓ | Update customer |
-| DELETE | `/api/customers/:id` | ✓ | Delete customer |
-| GET | `/api/analytics/overview` | ✓ | Dashboard KPIs |
-| GET | `/api/analytics/traffic` | ✓ | Traffic data |
-| GET | `/api/revenue/summary` | ✓ | MRR/ARR summary |
-| GET | `/api/revenue` | ✓ | Monthly revenue list |
-| GET | `/api/projects` | ✓ | List projects |
-| POST | `/api/projects` | ✓ | Create project |
-| PUT | `/api/projects/:id` | ✓ | Update project |
-| PUT | `/api/projects/:id/tasks/:taskId` | ✓ | Update task status |
-
----
-
-## Production Deployment
-
-### Backend (Railway / Render / Fly.io)
-```bash
-cd api
-# Set NODE_ENV=production in your platform env vars
-npm start
-```
-
-### Frontend (Vercel)
-```bash
-cd web
-# Set NEXT_PUBLIC_API_URL=https://your-api.railway.app/api
-vercel deploy
-```
-
-### MongoDB
-Use [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) free tier and set `MONGO_URI` to your connection string.
+| Page | Admin | Staff |
+|------|-------|-------|
+| Overview | ✅ Full | ✅ Full |
+| Analytics | ✅ Full | ❌ Hidden |
+| Customers | ✅ Full | ✅ View only |
+| Revenue | ✅ Full | ❌ Hidden |
+| Projects | ✅ Full | ✅ Full |
+| Settings | ✅ Full | ✅ Profile & Password only |
 
 ---
 
@@ -216,9 +44,223 @@ Use [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) free tier and set `MONG
 
 ---
 
+## Prerequisites
+
+- Node.js 18+
+- MongoDB (local) or MongoDB Atlas
+- npm
+
+---
+
+## Quick Start
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/YOUR_USERNAME/saas-dashboard.git
+cd saas-dashboard
+```
+
+### 2. Install dependencies
+
+```powershell
+# API
+cd api
+npm install
+
+# Web
+cd ../web
+npm install
+```
+
+### 3. Configure environment variables
+
+```powershell
+# API
+cd api
+copy .env.example .env
+```
+
+Edit `api/.env`:
+```
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/saas_dashboard
+JWT_SECRET=supersecretjwtkey123
+JWT_REFRESH_SECRET=supersecretrefreshkey456
+CLIENT_URL=http://localhost:3000
+NODE_ENV=development
+```
+
+```powershell
+# Web
+cd ../web
+copy .env.example .env.local
+```
+
+Edit `web/.env.local`:
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
+
+### 4. Start MongoDB
+
+**If installed as a service:**
+```powershell
+Start-Service MongoDB
+```
+
+**If running manually:**
+```powershell
+New-Item -ItemType Directory -Force -Path "C:\data\db"
+& "C:\Program Files\MongoDB\Server\7.0\bin\mongod.exe" --dbpath "C:\data\db"
+```
+
+**Using MongoDB Compass:**
+Open Compass and connect to `mongodb://localhost:27017` — MongoDB starts automatically when Compass opens.
+
+### 5. Seed the database
+
+```powershell
+cd api
+npm run seed
+```
+
+Output:
+```
+✅ MongoDB connected: localhost
+🗑️  Cleared existing data
+👥 Created users
+👤 Created 50 customers
+💰 Created revenue data
+📋 Created projects
+📝 Created activity logs
+
+✅ Seed complete!
+📧 Admin: admin@demo.com / password123
+📧 Staff: staff@demo.com / password123
+```
+
+### 6. Run the development servers
+
+**Terminal 1 — API:**
+```powershell
+cd api
+npm run dev
+```
+
+**Terminal 2 — Web:**
+```powershell
+cd web
+npm run dev
+```
+
+Open **http://localhost:3000** in your browser.
+
+---
+
 ## Demo Accounts
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@demo.com | password123 |
-| Staff | staff@demo.com | password123 |
+| Role | Email | Password | Access |
+|------|-------|----------|--------|
+| Admin | admin@demo.com | password123 | Full access |
+| Staff | staff@demo.com | password123 | Limited access |
+
+---
+
+## Project Structure
+
+```
+saas-dashboard/
+├── api/                          # Express.js Backend
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── customerController.js
+│   │   ├── analyticsController.js
+│   │   ├── revenueController.js
+│   │   └── projectController.js
+│   ├── middleware/
+│   │   └── auth.js               # JWT auth + role guard
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Customer.js
+│   │   ├── Revenue.js
+│   │   ├── Project.js
+│   │   └── ActivityLog.js
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── users.js
+│   │   ├── customers.js
+│   │   ├── analytics.js
+│   │   ├── revenue.js
+│   │   └── projects.js
+│   ├── utils/
+│   │   ├── db.js
+│   │   ├── jwt.js
+│   │   └── seed.js
+│   ├── server.js
+│   └── package.json
+│
+└── web/                          # Next.js 14 Frontend
+    ├── app/
+    │   ├── auth/
+    │   │   ├── login/page.tsx
+    │   │   └── register/page.tsx
+    │   └── dashboard/
+    │       ├── layout.tsx
+    │       ├── page.tsx
+    │       ├── analytics/page.tsx
+    │       ├── customers/page.tsx
+    │       ├── revenue/page.tsx
+    │       ├── projects/page.tsx
+    │       └── settings/page.tsx
+    ├── components/
+    │   ├── layout/
+    │   │   ├── Sidebar.tsx
+    │   │   └── Topbar.tsx
+    │   └── ui/
+    │       └── index.tsx
+    ├── hooks/
+    │   └── useQueries.ts
+    ├── lib/
+    │   ├── api.ts
+    │   ├── authStore.ts
+    │   ├── themeStore.ts
+    │   └── utils.ts
+    └── package.json
+```
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/register` | — | Register new user |
+| POST | `/api/auth/login` | — | Login |
+| POST | `/api/auth/refresh` | Cookie | Refresh access token |
+| POST | `/api/auth/logout` | — | Logout |
+| GET | `/api/auth/me` | ✓ | Get current user |
+| GET | `/api/users` | Admin | List all users |
+| PUT | `/api/users/profile` | ✓ | Update profile |
+| PUT | `/api/users/password` | ✓ | Change password |
+| GET | `/api/customers` | ✓ | List + filter customers |
+| POST | `/api/customers` | Admin | Create customer |
+| PUT | `/api/customers/:id` | Admin | Update customer |
+| DELETE | `/api/customers/:id` | Admin | Delete customer |
+| GET | `/api/analytics/overview` | ✓ | Dashboard KPIs |
+| GET | `/api/analytics/traffic` | Admin | Traffic data |
+| GET | `/api/revenue/summary` | Admin | MRR/ARR summary |
+| GET | `/api/revenue` | Admin | Monthly revenue list |
+| GET | `/api/projects` | ✓ | List projects |
+| POST | `/api/projects` | ✓ | Create project |
+| PUT | `/api/projects/:id` | ✓ | Update project |
+| PUT | `/api/projects/:id/tasks/:taskId` | ✓ | Update task |
+
+---
+
+## Notes
+
+- Make sure MongoDB is running before starting the API
+- Never commit `.env` or `.env.local` files — they are in `.gitignore`
+- Run `npm run seed` any time you want to reset the database to demo data
+- MongoDB Compass can be used to visually browse and manage your local database
