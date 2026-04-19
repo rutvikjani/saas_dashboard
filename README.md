@@ -1,30 +1,40 @@
 # Nova — SaaS Dashboard
 
-A production-ready full-stack SaaS admin dashboard built with Next.js 14, Express.js, MongoDB, and Tailwind CSS.
+> A production-ready full-stack SaaS admin dashboard built with Next.js 14, Express.js, MongoDB Atlas, and Tailwind CSS.
 
-![Stack](https://img.shields.io/badge/Next.js-14-black) ![Express](https://img.shields.io/badge/Express-4.18-green) ![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-green) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
+![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js) ![Express](https://img.shields.io/badge/Express-4.18-green?style=flat-square&logo=express) ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=flat-square&logo=mongodb) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript) ![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8?style=flat-square&logo=tailwindcss)
+
+---
+
+## Preview
+
+> Login with `admin@demo.com / password123` to explore all features.
+
+---
 
 ## Features
 
 - **Auth** — JWT access + refresh tokens, role-based (Admin/Staff), protected routes
 - **Overview** — KPI cards, revenue chart, user growth, activity feed
 - **Analytics** — Traffic stats, device sources, channel breakdown *(Admin only)*
-- **Customers** — Search, filter, pagination, CRUD *(Staff: view only)*
-- **Revenue** — MRR/ARR, churn, breakdown charts, billing summary *(Admin only)*
-- **Projects** — Kanban board with task status updates, progress tracking
-- **Settings** — Profile, password, theme, notifications *(Company tab: Admin only)*
-- **UI** — Dark/light mode, skeleton loaders, toast notifications, fully responsive
+- **Customers** — Search, filter, pagination, full CRUD *(Staff: view only)*
+- **Revenue** — MRR/ARR, churn rate, breakdown charts, billing summary *(Admin only)*
+- **Projects** — Kanban board with task status updates and progress tracking
+- **Settings** — Profile, password change, theme toggle, notifications *(Company tab: Admin only)*
+- **UI** — Dark/light mode, loading skeletons, toast notifications, fully responsive
+
+---
 
 ## Role-Based Access
 
 | Page | Admin | Staff |
 |------|-------|-------|
-| Overview | ✅ Full | ✅ Full |
-| Analytics | ✅ Full | ❌ Hidden |
-| Customers | ✅ Full | ✅ View only |
-| Revenue | ✅ Full | ❌ Hidden |
-| Projects | ✅ Full | ✅ Full |
-| Settings | ✅ Full | ✅ Profile & Password only |
+| Overview | Full | Full |
+| Analytics | Full | Hidden |
+| Customers | Full | View only |
+| Revenue | Full | Hidden |
+| Projects | Full | Full |
+| Settings | Full | Profile & Password only |
 
 ---
 
@@ -34,11 +44,11 @@ A production-ready full-stack SaaS admin dashboard built with Next.js 14, Expres
 |-------|-----------|
 | Frontend | Next.js 14 (App Router), TypeScript |
 | Styling | Tailwind CSS |
-| State | Zustand + TanStack React Query |
+| State Management | Zustand + TanStack React Query |
 | Charts | Recharts |
 | Backend | Node.js, Express.js |
-| Auth | JWT (access + refresh tokens) |
-| Database | MongoDB + Mongoose |
+| Authentication | JWT (access + refresh tokens) |
+| Database | MongoDB Atlas + Mongoose |
 | HTTP Client | Axios with interceptors |
 | Notifications | react-hot-toast |
 
@@ -47,7 +57,7 @@ A production-ready full-stack SaaS admin dashboard built with Next.js 14, Expres
 ## Prerequisites
 
 - Node.js 18+
-- MongoDB (local) or MongoDB Atlas
+- MongoDB Atlas account (free)
 - npm
 
 ---
@@ -82,11 +92,11 @@ copy .env.example .env
 ```
 
 Edit `api/.env`:
-```
+```env
 PORT=5000
 MONGO_URI=mongodb://username:password@ac-xxxxx-shard-00-00.xxxxx.mongodb.net:27017,ac-xxxxx-shard-00-01.xxxxx.mongodb.net:27017,ac-xxxxx-shard-00-02.xxxxx.mongodb.net:27017/saas_dashboard?ssl=true&replicaSet=atlas-xxxxxx&authSource=admin&appName=Cluster0
-JWT_SECRET=supersecretjwtkey123
-JWT_REFRESH_SECRET=supersecretrefreshkey456
+JWT_SECRET=your_jwt_secret_here
+JWT_REFRESH_SECRET=your_refresh_secret_here
 CLIENT_URL=http://localhost:3000
 NODE_ENV=development
 ```
@@ -98,21 +108,21 @@ copy .env.example .env.local
 ```
 
 Edit `web/.env.local`:
-```
+```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-### 4. MongoDB Setup (Atlas)
+### 4. MongoDB Atlas Setup
 
 1. Go to [cloud.mongodb.com](https://cloud.mongodb.com) and create a free account
 2. Create a free **M0** cluster — select region closest to you
-3. **Database Access** → Add a database user with username and password
-4. **Network Access** → Add IP Address → **Allow Access from Anywhere** (`0.0.0.0/0`)
-5. **Database** → **Connect** → **Drivers** → copy the connection string
+3. **Database Access** — Add a database user with username and password
+4. **Network Access** — Add IP Address — Allow Access from Anywhere (`0.0.0.0/0`)
+5. **Database** — Connect — Drivers — copy the connection string
 6. Replace `<password>` with your actual password
 7. Paste it as `MONGO_URI` in `api/.env`
 
-> **Note:** If `mongodb+srv://` gives DNS errors, use the direct connection string format instead.
+> **Note:** If `mongodb+srv://` gives DNS errors on your network, use the direct connection string format from Atlas — Connect — Drivers.
 
 ### 5. Seed the database
 
@@ -121,19 +131,19 @@ cd api
 npm run seed
 ```
 
-Output:
+Expected output:
 ```
-✅ MongoDB connected: localhost
-🗑️  Cleared existing data
-👥 Created users
-👤 Created 50 customers
-💰 Created revenue data
-📋 Created projects
-📝 Created activity logs
+MongoDB connected: cluster0.xxxxx.mongodb.net
+Cleared existing data
+Created users
+Created 50 customers
+Created revenue data
+Created projects
+Created activity logs
 
-✅ Seed complete!
-📧 Admin: admin@demo.com / password123
-📧 Staff: staff@demo.com / password123
+Seed complete!
+Admin: admin@demo.com / password123
+Staff: staff@demo.com / password123
 ```
 
 ### 6. Run the development servers
@@ -235,28 +245,28 @@ saas-dashboard/
 | POST | `/api/auth/login` | — | Login |
 | POST | `/api/auth/refresh` | Cookie | Refresh access token |
 | POST | `/api/auth/logout` | — | Logout |
-| GET | `/api/auth/me` | ✓ | Get current user |
+| GET | `/api/auth/me` | Yes | Get current user |
 | GET | `/api/users` | Admin | List all users |
-| PUT | `/api/users/profile` | ✓ | Update profile |
-| PUT | `/api/users/password` | ✓ | Change password |
-| GET | `/api/customers` | ✓ | List + filter customers |
+| PUT | `/api/users/profile` | Yes | Update profile |
+| PUT | `/api/users/password` | Yes | Change password |
+| GET | `/api/customers` | Yes | List + filter customers |
 | POST | `/api/customers` | Admin | Create customer |
 | PUT | `/api/customers/:id` | Admin | Update customer |
 | DELETE | `/api/customers/:id` | Admin | Delete customer |
-| GET | `/api/analytics/overview` | ✓ | Dashboard KPIs |
+| GET | `/api/analytics/overview` | Yes | Dashboard KPIs |
 | GET | `/api/analytics/traffic` | Admin | Traffic data |
 | GET | `/api/revenue/summary` | Admin | MRR/ARR summary |
 | GET | `/api/revenue` | Admin | Monthly revenue list |
-| GET | `/api/projects` | ✓ | List projects |
-| POST | `/api/projects` | ✓ | Create project |
-| PUT | `/api/projects/:id` | ✓ | Update project |
-| PUT | `/api/projects/:id/tasks/:taskId` | ✓ | Update task |
+| GET | `/api/projects` | Yes | List projects |
+| POST | `/api/projects` | Yes | Create project |
+| PUT | `/api/projects/:id` | Yes | Update project |
+| PUT | `/api/projects/:id/tasks/:taskId` | Yes | Update task |
 
 ---
 
 ## Notes
 
-- Make sure MongoDB is running before starting the API
-- Never commit `.env` or `.env.local` files — they are in `.gitignore`
+- Never commit `.env` or `.env.local` files — they are already in `.gitignore`
 - Run `npm run seed` any time you want to reset the database to demo data
-- MongoDB Compass can be used to visually browse and manage your local database
+- On production, set `CLIENT_URL` to your frontend deployment URL to avoid CORS errors
+- Render free tier spins down after 15 minutes of inactivity — first request may be slow
