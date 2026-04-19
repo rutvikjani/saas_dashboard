@@ -84,7 +84,7 @@ copy .env.example .env
 Edit `api/.env`:
 ```
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/saas_dashboard
+MONGO_URI=mongodb://username:password@ac-xxxxx-shard-00-00.xxxxx.mongodb.net:27017,ac-xxxxx-shard-00-01.xxxxx.mongodb.net:27017,ac-xxxxx-shard-00-02.xxxxx.mongodb.net:27017/saas_dashboard?ssl=true&replicaSet=atlas-xxxxxx&authSource=admin&appName=Cluster0
 JWT_SECRET=supersecretjwtkey123
 JWT_REFRESH_SECRET=supersecretrefreshkey456
 CLIENT_URL=http://localhost:3000
@@ -102,21 +102,17 @@ Edit `web/.env.local`:
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-### 4. Start MongoDB
+### 4. MongoDB Setup (Atlas)
 
-**If installed as a service:**
-```powershell
-Start-Service MongoDB
-```
+1. Go to [cloud.mongodb.com](https://cloud.mongodb.com) and create a free account
+2. Create a free **M0** cluster — select region closest to you
+3. **Database Access** → Add a database user with username and password
+4. **Network Access** → Add IP Address → **Allow Access from Anywhere** (`0.0.0.0/0`)
+5. **Database** → **Connect** → **Drivers** → copy the connection string
+6. Replace `<password>` with your actual password
+7. Paste it as `MONGO_URI` in `api/.env`
 
-**If running manually:**
-```powershell
-New-Item -ItemType Directory -Force -Path "C:\data\db"
-& "C:\Program Files\MongoDB\Server\7.0\bin\mongod.exe" --dbpath "C:\data\db"
-```
-
-**Using MongoDB Compass:**
-Open Compass and connect to `mongodb://localhost:27017` — MongoDB starts automatically when Compass opens.
+> **Note:** If `mongodb+srv://` gives DNS errors, use the direct connection string format instead.
 
 ### 5. Seed the database
 
