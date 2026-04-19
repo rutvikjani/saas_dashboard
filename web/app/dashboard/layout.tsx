@@ -13,16 +13,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-  const check = async () => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) { router.push('/auth/login'); setChecking(false); return; }
-    await fetchMe();
-    const store = useAuthStore.getState();
-    if (!store.isAuthenticated) { router.push('/auth/login'); return; }
-    setChecking(false);
-  };
-  check();
-}, []);
+    const check = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) { router.push('/auth/login'); setChecking(false); return; }
+      await fetchMe();
+      const store = useAuthStore.getState();
+      if (!store.isAuthenticated) { router.push('/auth/login'); return; }
+      setChecking(false);
+    };
+    check();
+  }, []);
 
   if (checking) {
     return (
@@ -34,18 +34,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0f]">
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={() => setMobileOpen(false)} />
-      )}
-
-      <div className={`lg:translate-x-0 transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:block fixed z-40`}>
-        <Sidebar />
-      </div>
-
+      <Sidebar open={mobileOpen} onClose={() => setMobileOpen(false)} />
       <div className="lg:pl-[260px]">
-        <Topbar onMobileMenuToggle={() => setMobileOpen(!mobileOpen)} />
-        <main className="p-6 min-h-[calc(100vh-4rem)]">
+        <Topbar onMobileMenuToggle={() => setMobileOpen(true)} />
+        <main className="p-4 sm:p-6 min-h-[calc(100vh-4rem)]">
           {children}
         </main>
       </div>

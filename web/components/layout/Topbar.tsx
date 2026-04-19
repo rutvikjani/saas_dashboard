@@ -16,8 +16,12 @@ export default function Topbar({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
   ];
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 flex items-center px-6 gap-4">
-      <button onClick={onMobileMenuToggle} className="lg:hidden text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+    <header className="sticky top-0 z-30 h-16 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 flex items-center px-4 sm:px-6 gap-3">
+      {/* Hamburger - mobile only */}
+      <button
+        onClick={onMobileMenuToggle}
+        className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+      >
         <Menu size={20} />
       </button>
 
@@ -31,7 +35,12 @@ export default function Topbar({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
         />
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      {/* Mobile title */}
+      <div className="flex-1 lg:hidden">
+        <p className="text-sm font-semibold text-gray-900 dark:text-white">Nova</p>
+      </div>
+
+      <div className="ml-auto flex items-center gap-1.5">
         {/* Theme toggle */}
         <button
           onClick={toggle}
@@ -51,7 +60,7 @@ export default function Topbar({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
           </button>
 
           {showNotif && (
-            <div className="absolute right-0 top-12 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden animate-in">
+            <div className="absolute right-0 top-12 w-72 sm:w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden animate-in">
               <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">Notifications</p>
                 <span className="text-xs text-brand-600 cursor-pointer hover:underline">Mark all read</span>

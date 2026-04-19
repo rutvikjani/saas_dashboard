@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, BarChart3, Users, DollarSign,
-  FolderKanban, Settings, LogOut, Zap, ChevronRight, ShieldCheck,
+  FolderKanban, Settings, LogOut, Zap, ChevronRight, ShieldCheck, X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/authStore';
@@ -19,7 +19,12 @@ const navItems = [
   { label: 'Settings', href: '/dashboard/settings', icon: Settings, adminOnly: false },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  open?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
   const router = useRouter();
@@ -33,18 +38,24 @@ export default function Sidebar() {
 
   const visibleItems = navItems.filter(item => !item.adminOnly || isAdmin);
 
-  return (
-    <aside className="fixed left-0 top-0 h-screen w-[260px] bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 flex flex-col z-40">
-      <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
+  const content = (
+    <aside className="h-full w-[260px] bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 flex flex-col">
+      {/* Logo */}
+      <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <Link href="/dashboard" className="flex items-center gap-2.5" onClick={onClose}>
           <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
             <Zap className="w-4 h-4 text-white" />
           </div>
           <span className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">Nova</span>
-          <span className="ml-auto text-xs font-medium px-1.5 py-0.5 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 rounded">Beta</span>
+          <span className="ml-2 text-xs font-medium px-1.5 py-0.5 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 rounded">Beta</span>
         </Link>
+        {/* Close button - mobile only */}
+        <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <X size={18} />
+        </button>
       </div>
 
+      {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         <p className="px-3 mb-2 text-xs font-semibold text-gray-400 dark:text-gray-600 uppercase tracking-wider">Menu</p>
         {visibleItems.map(({ label, href, icon: Icon }) => {
@@ -53,6 +64,7 @@ export default function Sidebar() {
             <Link
               key={href}
               href={href}
+              onClick={onClose}
               className={cn(
                 'group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
                 active
@@ -81,6 +93,7 @@ export default function Sidebar() {
         </div>
       </div>
 
+      {/* User */}
       <div className="p-3 border-t border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
           <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center text-xs font-bold text-brand-700 dark:text-brand-400 shrink-0">
@@ -96,5 +109,24 @@ export default function Sidebar() {
         </div>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex">
+        {content}
+      </div>
+
+      {/* Mobile drawer */}
+      {open && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+          <div className="absolute left-0 top-0 h-full animate-in">
+            {content}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

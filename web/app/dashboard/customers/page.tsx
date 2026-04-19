@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { useCustomers, useCreateCustomer, useUpdateCustomer, useDeleteCustomer } from '@/hooks/useQueries';
+import { useAuthStore } from '@/lib/authStore';
 import { Card, Table, Th, Td, Badge, Modal, Skeleton, EmptyState } from '@/components/ui';
 import { formatCurrency, getStatusColor, getPlanColor, getInitials } from '@/lib/utils';
 import { Search, Plus, Pencil, Trash2, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
-import { useAuthStore } from '@/lib/authStore';
 
 const PLANS = ['', 'free', 'starter', 'pro', 'enterprise'];
 const STATUSES = ['', 'active', 'inactive', 'churned', 'trial'];
@@ -18,6 +18,8 @@ interface CustomerForm {
 const emptyForm: CustomerForm = { name: '', email: '', company: '', phone: '', plan: 'free', status: 'active', country: '' };
 
 export default function CustomersPage() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === 'admin';
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -31,15 +33,7 @@ export default function CustomersPage() {
   const updateCustomer = useUpdateCustomer();
   const deleteCustomer = useDeleteCustomer();
 
-  const { user } = useAuthStore();
-  const isAdmin = user?.role === 'admin';
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSearch(searchInput);
-    setPage(1);
-  };
-
+  const handleSearch = (e: React.FormEvent) => { e.preventDefault(); setSearch(searchInput); setPage(1); };
   const openCreate = () => { setForm(emptyForm); setModal({ type: 'create' }); };
   const openEdit = (c: any) => { setForm({ name: c.name, email: c.email, company: c.company || '', phone: c.phone || '', plan: c.plan, status: c.status, country: c.country || '' }); setModal({ type: 'edit', customer: c }); };
   const openDelete = (c: any) => setModal({ type: 'delete', customer: c });
@@ -56,37 +50,34 @@ export default function CustomersPage() {
   const pages = data?.pages || 1;
 
   return (
-    <div className="space-y-6 animate-in">
+    <div className="space-y-4 sm:space-y-6 animate-in">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Customers</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Customers</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{total} total customers</p>
         </div>
         {isAdmin && (
-  <button onClick={openCreate} className="btn-primary flex items-center gap-2">
-    <Plus size={15} /> Add Customer
-  </button>
-)}
+          <button onClick={openCreate} className="btn-primary flex items-center gap-2 text-xs sm:text-sm">
+            <Plus size={14} /> <span className="hidden sm:inline">Add Customer</span><span className="sm:hidden">Add</span>
+          </button>
+        )}
       </div>
 
       <Card>
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 mb-4 sm:mb-5">
           <form onSubmit={handleSearch} className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              className="input pl-9"
-              placeholder="Search by name, email or company..."
-              value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
-            />
+            <input className="input pl-9" placeholder="Search customers..." value={searchInput} onChange={e => setSearchInput(e.target.value)} />
           </form>
-          <select className="input sm:w-36" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}>
-            {STATUSES.map(s => <option key={s} value={s}>{s ? s.charAt(0).toUpperCase() + s.slice(1) : 'All Status'}</option>)}
-          </select>
-          <select className="input sm:w-36" value={plan} onChange={e => { setPlan(e.target.value); setPage(1); }}>
-            {PLANS.map(p => <option key={p} value={p}>{p ? p.charAt(0).toUpperCase() + p.slice(1) : 'All Plans'}</option>)}
-          </select>
+          <div className="flex gap-2">
+            <select className="input flex-1 sm:w-36" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}>
+              {STATUSES.map(s => <option key={s} value={s}>{s ? s.charAt(0).toUpperCase() + s.slice(1) : 'All Status'}</option>)}
+            </select>
+            <select className="input flex-1 sm:w-36" value={plan} onChange={e => { setPlan(e.target.value); setPage(1); }}>
+              {PLANS.map(p => <option key={p} value={p}>{p ? p.charAt(0).toUpperCase() + p.slice(1) : 'All Plans'}</option>)}
+            </select>
+          </div>
         </div>
 
         {/* Table */}
@@ -95,62 +86,65 @@ export default function CustomersPage() {
         ) : customers.length === 0 ? (
           <EmptyState title="No customers found" description="Try adjusting your filters" icon={<Users size={40} />} />
         ) : (
-          <Table>
-            <thead>
-              <tr className="border-b border-gray-100 dark:border-gray-800">
-                <Th>Customer</Th>
-                <Th>Company</Th>
-                <Th>Plan</Th>
-                <Th>Status</Th>
-                <Th>MRR</Th>
-                <Th>Joined</Th>
-                <Th className="text-right">Actions</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {customers.map((c: any) => (
-                <tr key={c._id} className="border-b border-gray-50 dark:border-gray-800/50 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
-                  <Td>
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-xs font-bold text-brand-700 dark:text-brand-400 shrink-0">
-                        {getInitials(c.name)}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">{c.name}</p>
-                        <p className="text-xs text-gray-400">{c.email}</p>
-                      </div>
-                    </div>
-                  </Td>
-                  <Td>{c.company || '—'}</Td>
-                  <Td><Badge className={getPlanColor(c.plan)}>{c.plan}</Badge></Td>
-                  <Td><Badge className={getStatusColor(c.status)}>{c.status}</Badge></Td>
-                  <Td className="font-medium text-gray-900 dark:text-white">{c.mrr ? formatCurrency(c.mrr) : '—'}</Td>
-                  <Td className="text-gray-500">{format(new Date(c.joinedAt), 'MMM d, yyyy')}</Td>
-                  <Td>
-                    <div className="flex items-center justify-end gap-1">
-  {isAdmin && (
-    <>
-      <button onClick={() => openEdit(c)} className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded transition-colors">
-        <Pencil size={14} />
-      </button>
-      <button onClick={() => openDelete(c)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
-        <Trash2 size={14} />
-      </button>
-    </>
-  )}
-  {!isAdmin && <span className="text-xs text-gray-300 dark:text-gray-700 pr-1">View only</span>}
-              </div>
-                  </Td>
+          <div className="overflow-x-auto -mx-5">
+            <Table>
+              <thead>
+                <tr className="border-b border-gray-100 dark:border-gray-800">
+                  <Th>Customer</Th>
+                  <Th className="hidden md:table-cell">Company</Th>
+                  <Th className="hidden sm:table-cell">Plan</Th>
+                  <Th>Status</Th>
+                  <Th className="hidden md:table-cell">MRR</Th>
+                  <Th className="hidden lg:table-cell">Joined</Th>
+                  {isAdmin && <Th className="text-right">Actions</Th>}
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {customers.map((c: any) => (
+                  <tr key={c._id} className="border-b border-gray-50 dark:border-gray-800/50 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                    <Td>
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-xs font-bold text-brand-700 dark:text-brand-400 shrink-0">
+                          {getInitials(c.name)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm truncate max-w-[100px] sm:max-w-[160px]">{c.name}</p>
+                          <p className="text-xs text-gray-400 truncate max-w-[100px] sm:max-w-[160px]">{c.email}</p>
+                        </div>
+                      </div>
+                    </Td>
+                    <Td className="hidden md:table-cell text-sm">{c.company || '—'}</Td>
+                    <Td className="hidden sm:table-cell"><Badge className={getPlanColor(c.plan)}>{c.plan}</Badge></Td>
+                    <Td><Badge className={getStatusColor(c.status)}>{c.status}</Badge></Td>
+                    <Td className="hidden md:table-cell font-medium text-gray-900 dark:text-white text-sm">{c.mrr ? formatCurrency(c.mrr) : '—'}</Td>
+                    <Td className="hidden lg:table-cell text-gray-500 text-sm">{format(new Date(c.joinedAt), 'MMM d, yyyy')}</Td>
+                    {isAdmin && (
+                      <Td>
+                        <div className="flex items-center justify-end gap-1">
+                          <button onClick={() => openEdit(c)} className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded transition-colors">
+                            <Pencil size={13} />
+                          </button>
+                          <button onClick={() => openDelete(c)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </Td>
+                    )}
+                    {!isAdmin && (
+                      <Td><span className="text-xs text-gray-300 dark:text-gray-700">View only</span></Td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
         )}
 
         {/* Pagination */}
         {pages > 1 && (
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-            <p className="text-xs text-gray-500">Page {page} of {pages} · {total} results</p>
+            <p className="text-xs text-gray-500 hidden sm:block">Page {page} of {pages} · {total} results</p>
+            <p className="text-xs text-gray-500 sm:hidden">{page}/{pages}</p>
             <div className="flex items-center gap-1">
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-1.5 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                 <ChevronLeft size={16} />
@@ -171,8 +165,8 @@ export default function CustomersPage() {
 
       {/* Create/Edit Modal */}
       <Modal open={modal?.type === 'create' || modal?.type === 'edit'} onClose={() => setModal(null)} title={modal?.type === 'create' ? 'Add Customer' : 'Edit Customer'}>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Full Name *</label>
               <input required className="input" placeholder="Emma Johnson" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
