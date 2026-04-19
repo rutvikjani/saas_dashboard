@@ -2,7 +2,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useEffect, useState } from 'react';
-import { useThemeStore } from '@/lib/themeStore';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -13,13 +12,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    const theme = useThemeStore.getState().theme;
-    document.documentElement.classList.toggle('dark', theme === 'dark');
+    // Restore theme from localStorage
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
   }, []);
+
+  if (!mounted) return null;
 
   return (
     <QueryClientProvider client={queryClient}>
-      {mounted ? children : <div style={{ visibility: 'hidden' }}>{children}</div>}
+      {children}
       <Toaster
         position="bottom-right"
         toastOptions={{
