@@ -69,11 +69,9 @@ export default function ProjectsPage() {
               </div>
               <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1 truncate">{p.name}</p>
               <p className="text-xs text-gray-400 mb-3 line-clamp-2">{p.description}</p>
-              <ProgressBar value={p.progress} color="" className="mb-2" style={{ '--bar-color': p.color } as any}>
-                <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${p.progress}%`, background: p.color }} />
-                </div>
-              </ProgressBar>
+              <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-2">
+                <div className="h-full rounded-full transition-all duration-500" style={{ width: `${p.progress}%`, background: p.color }} />
+              </div>
               <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-2">
                 <div className="h-full rounded-full" style={{ width: `${p.progress}%`, background: p.color }} />
               </div>
