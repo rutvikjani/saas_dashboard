@@ -50,6 +50,12 @@ export default function LoginPage() {
           <p className="text-xs text-brand-600/70 dark:text-brand-500">admin@demo.com / password123</p>
         </div>
 
+          {/* Free tier notice */}
+        <div className="mb-5 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800">
+          <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+            <span className="font-semibold">Live demo available below.</span> Please note: the backend uses free-tier hosting, so the first request may take a few seconds to initialize. Once active, the dashboard runs normally.
+          </p>
+        </div>
         {error && (
           <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-xs text-red-600 dark:text-red-400">
             {error}
