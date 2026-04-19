@@ -13,18 +13,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const check = async () => {
-      if (!isAuthenticated) {
-        const token = localStorage.getItem('accessToken');
-        if (!token) { router.push('/auth/login'); return; }
-        await fetchMe();
-        const store = useAuthStore.getState();
-        if (!store.isAuthenticated) { router.push('/auth/login'); return; }
-      }
-      setChecking(false);
-    };
-    check();
-  }, []);
+  const check = async () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) { router.push('/auth/login'); setChecking(false); return; }
+    await fetchMe();
+    const store = useAuthStore.getState();
+    if (!store.isAuthenticated) { router.push('/auth/login'); return; }
+    setChecking(false);
+  };
+  check();
+}, []);
 
   if (checking) {
     return (

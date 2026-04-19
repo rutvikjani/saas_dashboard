@@ -9,19 +9,17 @@ const queryClient = new QueryClient({
 });
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const { theme } = useThemeStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    const theme = useThemeStore.getState().theme;
     document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
-
-  if (!mounted) return <>{children}</>;
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      {mounted ? children : <div style={{ visibility: 'hidden' }}>{children}</div>}
       <Toaster
         position="bottom-right"
         toastOptions={{
