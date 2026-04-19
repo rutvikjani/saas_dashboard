@@ -13,7 +13,6 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Wake up Render API silently in background
     fetch(`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/api/health`)
       .catch(() => {});
   }, []);
