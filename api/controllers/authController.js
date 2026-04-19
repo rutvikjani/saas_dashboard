@@ -14,8 +14,12 @@ exports.register = async (req, res) => {
     user.refreshTokens.push(refreshToken);
     await user.save();
 
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
-    res.status(201).json({ accessToken, user });
+res.cookie('refreshToken', refreshToken, { 
+  httpOnly: true, 
+  secure: process.env.NODE_ENV === 'production', 
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+  maxAge: 7 * 24 * 60 * 60 * 1000 
+});    res.status(201).json({ accessToken, user });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
