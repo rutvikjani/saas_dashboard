@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
+import { exportToCSV, exportToExcel } from '@/lib/fileParser';
 
 // Analytics
 export const useOverview = () =>
@@ -96,3 +97,32 @@ export const useChangePassword = () =>
     onSuccess: () => toast.success('Password changed!'),
     onError: (e: any) => toast.error(e.response?.data?.message || 'Failed to change password'),
   });
+
+
+export const useExportCustomers = () => {
+  return useMutation({
+    mutationFn: async (format: 'csv' | 'excel') => {
+      const { data } = await api.get('/customers', { params: { limit: 10000 } });
+      return { customers: data.customers, format };
+    },
+    onSuccess: ({ customers, format }) => {
+      const exportData = customers.map((c: any) => ({
+        name: c.name,
+        email: c.email,
+        company: c.company,
+        phone: c.phone,
+        plan: c.plan,
+        status: c.status,
+        country: c.country,
+        mrr: c.mrr,
+        joinedAt: new Date(c.joinedAt).toLocaleDateString(),
+      }));
+      if (format === 'csv') {
+        exportToCSV(exportData, 'nova-customers');
+      } else {
+        exportToExcel(exportData, 'nova-customers');
+      }
+      toast.success('Export downloaded!');
+    },
+  });
+};

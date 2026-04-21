@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Sidebar open={mobileOpen} onClose={() => setMobileOpen(false)} />
       <div className="lg:pl-[260px]">
         <Topbar onMobileMenuToggle={() => setMobileOpen(true)} />
-        <main className="p-4 sm:p-6 min-h-[calc(100vh-4rem)]">
+          <main className="p-4 sm:p-6 min-h-[calc(100vh-4rem)]">
           {children}
         </main>
       </div>

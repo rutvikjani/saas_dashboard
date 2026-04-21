@@ -1,34 +1,45 @@
 # Nova — SaaS Dashboard
 
-> A production-ready full-stack SaaS admin dashboard built with Next.js 14, Express.js, MongoDB Atlas, and Tailwind CSS.
+**A production-ready full-stack SaaS admin dashboard with role-based access, revenue tracking, customer management, and project planning.**
 
-![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js) ![Express](https://img.shields.io/badge/Express-4.18-green?style=flat-square&logo=express) ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=flat-square&logo=mongodb) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript) ![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8?style=flat-square&logo=tailwindcss)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![Express](https://img.shields.io/badge/Express-4.18-000000?style=flat-square&logo=express)](https://expressjs.com)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://mongodb.com)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS-38BDF8?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?style=flat-square&logo=vercel)](https://saas-dashboard-gold-tau.vercel.app)
+
+**[Live Demo](https://saas-dashboard-gold-tau.vercel.app)** · Backend may take ~30 seconds to wake up on first visit (free tier hosting).
 
 ---
 
-## Preview
+## Overview
 
-> Login with `admin@demo.com / password123` to explore all features.
+Nova is a full-stack SaaS operations dashboard built for early-stage founders and small teams. It replaces the need for multiple tools by combining revenue metrics, customer management, project tracking, and team roles into one clean interface.
 
 ---
 
 ## Features
 
-- **Auth** — JWT access + refresh tokens, role-based (Admin/Staff), protected routes
-- **Overview** — KPI cards, revenue chart, user growth, activity feed
-- **Analytics** — Traffic stats, device sources, channel breakdown *(Admin only)*
-- **Customers** — Search, filter, pagination, full CRUD *(Staff: view only)*
-- **Revenue** — MRR/ARR, churn rate, breakdown charts, billing summary *(Admin only)*
-- **Projects** — Kanban board with task status updates and progress tracking
-- **Settings** — Profile, password change, theme toggle, notifications *(Company tab: Admin only)*
-- **UI** — Dark/light mode, loading skeletons, toast notifications, fully responsive
+| Feature | Description |
+|---------|-------------|
+| Authentication | JWT access + refresh tokens, protected routes |
+| Role-Based Access | Admin and Staff roles with different permissions |
+| Overview | KPI cards, revenue chart, user growth, activity feed |
+| Analytics | Traffic stats, device sources, conversion metrics |
+| Customers | Search, filter, pagination, CRUD, bulk import, export |
+| Revenue | MRR, ARR, churn rate, monthly breakdown charts |
+| Projects | Kanban board with task management and progress tracking |
+| File Import | CSV, Excel (.xlsx/.xls), and PDF support with column mapping |
+| Export | Download customer data as CSV or Excel |
+| UI | Dark/light mode, responsive design, loading skeletons |
 
 ---
 
 ## Role-Based Access
 
 | Page | Admin | Staff |
-|------|-------|-------|
+|------|:-----:|:-----:|
 | Overview | Full | Full |
 | Analytics | Full | Hidden |
 | Customers | Full | View only |
@@ -40,127 +51,103 @@
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 14 (App Router), TypeScript |
-| Styling | Tailwind CSS |
-| State Management | Zustand + TanStack React Query |
-| Charts | Recharts |
-| Backend | Node.js, Express.js |
-| Authentication | JWT (access + refresh tokens) |
-| Database | MongoDB Atlas + Mongoose |
-| HTTP Client | Axios with interceptors |
-| Notifications | react-hot-toast |
+**Frontend**
+- Next.js 14 (App Router) + TypeScript
+- Tailwind CSS
+- Zustand + TanStack React Query
+- Recharts
+- Papaparse + SheetJS (file parsing)
+
+**Backend**
+- Node.js + Express.js
+- JWT authentication (access + refresh tokens)
+- MongoDB Atlas + Mongoose
+
+**Deployment**
+- Frontend → Vercel
+- Backend → Render
+- Database → MongoDB Atlas
 
 ---
 
-## Prerequisites
+## Getting Started
+
+### Prerequisites
 
 - Node.js 18+
 - MongoDB Atlas account (free)
 - npm
 
----
+### Installation
 
-## Quick Start
-
-### 1. Clone the repo
+**1. Clone the repository**
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/saas-dashboard.git
 cd saas-dashboard
 ```
 
-### 2. Install dependencies
+**2. Install dependencies**
 
-```powershell
+```bash
 # API
-cd api
-npm install
+cd api && npm install
 
 # Web
-cd ../web
-npm install
+cd ../web && npm install
 ```
 
-### 3. Configure environment variables
+**3. Configure environment variables**
 
-```powershell
-# API
+Create `api/.env` from the example:
+
+```bash
 cd api
 copy .env.example .env
 ```
 
-Edit `api/.env`:
 ```env
 PORT=5000
-MONGO_URI=mongodb://username:password@ac-xxxxx-shard-00-00.xxxxx.mongodb.net:27017,ac-xxxxx-shard-00-01.xxxxx.mongodb.net:27017,ac-xxxxx-shard-00-02.xxxxx.mongodb.net:27017/saas_dashboard?ssl=true&replicaSet=atlas-xxxxxx&authSource=admin&appName=Cluster0
-JWT_SECRET=your_jwt_secret_here
-JWT_REFRESH_SECRET=your_refresh_secret_here
+MONGO_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=your_jwt_secret
+JWT_REFRESH_SECRET=your_refresh_secret
 CLIENT_URL=http://localhost:3000
 NODE_ENV=development
 ```
 
-```powershell
-# Web
-cd ../web
-copy .env.example .env.local
-```
+Create `web/.env.local`:
 
-Edit `web/.env.local`:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-### 4. MongoDB Atlas Setup
+**4. Set up MongoDB Atlas**
 
-1. Go to [cloud.mongodb.com](https://cloud.mongodb.com) and create a free account
-2. Create a free **M0** cluster — select region closest to you
-3. **Database Access** — Add a database user with username and password
-4. **Network Access** — Add IP Address — Allow Access from Anywhere (`0.0.0.0/0`)
-5. **Database** — Connect — Drivers — copy the connection string
-6. Replace `<password>` with your actual password
-7. Paste it as `MONGO_URI` in `api/.env`
+1. Create a free account at [cloud.mongodb.com](https://cloud.mongodb.com)
+2. Create a free M0 cluster in the region closest to you
+3. Under **Database Access** — add a user with read/write permissions
+4. Under **Network Access** — add `0.0.0.0/0` to allow all connections
+5. Under **Database → Connect → Drivers** — copy the connection string
+6. Paste it as `MONGO_URI` in `api/.env`
 
-> **Note:** If `mongodb+srv://` gives DNS errors on your network, use the direct connection string format from Atlas — Connect — Drivers.
+> If `mongodb+srv://` fails due to DNS issues on your network, use the direct connection string format available from Atlas.
 
-### 5. Seed the database
+**5. Seed the database**
 
-```powershell
+```bash
 cd api
 npm run seed
 ```
 
-Expected output:
+**6. Start development servers**
+
+```bash
+# Terminal 1 — API (http://localhost:5000)
+cd api && npm run dev
+
+# Terminal 2 — Web (http://localhost:3000)
+cd web && npm run dev
 ```
-MongoDB connected: cluster0.xxxxx.mongodb.net
-Cleared existing data
-Created users
-Created 50 customers
-Created revenue data
-Created projects
-Created activity logs
-
-Seed complete!
-Admin: admin@demo.com / password123
-Staff: staff@demo.com / password123
-```
-
-### 6. Run the development servers
-
-**Terminal 1 — API:**
-```powershell
-cd api
-npm run dev
-```
-
-**Terminal 2 — Web:**
-```powershell
-cd web
-npm run dev
-```
-
-Open **http://localhost:3000** in your browser.
 
 ---
 
@@ -168,8 +155,34 @@ Open **http://localhost:3000** in your browser.
 
 | Role | Email | Password | Access |
 |------|-------|----------|--------|
-| Admin | admin@demo.com | password123 | Full access |
+| Admin | admin@demo.com | password123 | Full access to all pages |
 | Staff | staff@demo.com | password123 | Limited access |
+
+---
+
+## File Import
+
+Customers can be imported from **CSV**, **Excel**, or **PDF** files.
+
+**Import flow:**
+1. Go to Customers → click **Import**
+2. Upload your file (drag and drop supported)
+3. Map your columns to Nova fields — auto-detect available
+4. Preview the first 5 rows before importing
+5. Confirm — data imports in batches
+
+**Download a sample template** directly from the import page to see the expected format.
+
+| Field | Required |
+|-------|:--------:|
+| name | Yes |
+| email | Yes |
+| company | No |
+| phone | No |
+| plan | No |
+| status | No |
+| country | No |
+| mrr | No |
 
 ---
 
@@ -177,96 +190,77 @@ Open **http://localhost:3000** in your browser.
 
 ```
 saas-dashboard/
-├── api/                          # Express.js Backend
-│   ├── controllers/
-│   │   ├── authController.js
-│   │   ├── customerController.js
-│   │   ├── analyticsController.js
-│   │   ├── revenueController.js
-│   │   └── projectController.js
-│   ├── middleware/
-│   │   └── auth.js               # JWT auth + role guard
-│   ├── models/
-│   │   ├── User.js
-│   │   ├── Customer.js
-│   │   ├── Revenue.js
-│   │   ├── Project.js
-│   │   └── ActivityLog.js
-│   ├── routes/
-│   │   ├── auth.js
-│   │   ├── users.js
-│   │   ├── customers.js
-│   │   ├── analytics.js
-│   │   ├── revenue.js
-│   │   └── projects.js
-│   ├── utils/
-│   │   ├── db.js
-│   │   ├── jwt.js
-│   │   └── seed.js
-│   ├── server.js
-│   └── package.json
+├── api/                        # Express.js backend
+│   ├── controllers/            # Route handlers
+│   ├── middleware/             # Auth + role guards
+│   ├── models/                 # Mongoose schemas
+│   ├── routes/                 # Express routers
+│   ├── utils/                  # DB, JWT, seed, indexes
+│   └── server.js
 │
-└── web/                          # Next.js 14 Frontend
+└── web/                        # Next.js 14 frontend
     ├── app/
-    │   ├── auth/
-    │   │   ├── login/page.tsx
-    │   │   └── register/page.tsx
-    │   └── dashboard/
-    │       ├── layout.tsx
-    │       ├── page.tsx
-    │       ├── analytics/page.tsx
-    │       ├── customers/page.tsx
-    │       ├── revenue/page.tsx
-    │       ├── projects/page.tsx
-    │       └── settings/page.tsx
+    │   ├── auth/               # Login + register pages
+    │   └── dashboard/          # All dashboard pages
+    │       └── customers/
+    │           └── import/     # File import page
     ├── components/
-    │   ├── layout/
-    │   │   ├── Sidebar.tsx
-    │   │   └── Topbar.tsx
-    │   └── ui/
-    │       └── index.tsx
-    ├── hooks/
-    │   └── useQueries.ts
-    ├── lib/
-    │   ├── api.ts
-    │   ├── authStore.ts
-    │   ├── themeStore.ts
-    │   └── utils.ts
-    └── package.json
+    │   ├── layout/             # Sidebar + Topbar
+    │   └── ui/                 # Reusable components
+    ├── hooks/                  # React Query hooks
+    └── lib/                    # API client, stores, utils
 ```
 
 ---
 
-## API Endpoints
+## API Reference
 
 | Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/auth/register` | — | Register new user |
+|--------|----------|:----:|-------------|
+| POST | `/api/auth/register` | — | Register |
 | POST | `/api/auth/login` | — | Login |
-| POST | `/api/auth/refresh` | Cookie | Refresh access token |
+| POST | `/api/auth/refresh` | Cookie | Refresh token |
 | POST | `/api/auth/logout` | — | Logout |
-| GET | `/api/auth/me` | Yes | Get current user |
-| GET | `/api/users` | Admin | List all users |
+| GET | `/api/auth/me` | Yes | Current user |
+| GET | `/api/users` | Admin | List users |
 | PUT | `/api/users/profile` | Yes | Update profile |
 | PUT | `/api/users/password` | Yes | Change password |
-| GET | `/api/customers` | Yes | List + filter customers |
+| GET | `/api/customers` | Yes | List customers |
 | POST | `/api/customers` | Admin | Create customer |
 | PUT | `/api/customers/:id` | Admin | Update customer |
 | DELETE | `/api/customers/:id` | Admin | Delete customer |
 | GET | `/api/analytics/overview` | Yes | Dashboard KPIs |
 | GET | `/api/analytics/traffic` | Admin | Traffic data |
-| GET | `/api/revenue/summary` | Admin | MRR/ARR summary |
-| GET | `/api/revenue` | Admin | Monthly revenue list |
+| GET | `/api/revenue/summary` | Admin | Revenue summary |
+| GET | `/api/revenue` | Admin | Monthly data |
 | GET | `/api/projects` | Yes | List projects |
 | POST | `/api/projects` | Yes | Create project |
-| PUT | `/api/projects/:id` | Yes | Update project |
 | PUT | `/api/projects/:id/tasks/:taskId` | Yes | Update task |
+| GET | `/api/health` | — | Health check |
+
+---
+
+## Deployment
+
+**Vercel (Frontend)**
+1. Import repo → set Root Directory to `web`
+2. Add env var: `NEXT_PUBLIC_API_URL=https://your-api.onrender.com/api`
+3. Deploy
+
+**Render (Backend)**
+1. Import repo → set Root Directory to `api`
+2. Build: `npm install` · Start: `node server.js`
+3. Add all env vars from `.env.example`
+
+**MongoDB Atlas**
+- Use free M0 tier
+- Set Network Access to `0.0.0.0/0`
 
 ---
 
 ## Notes
 
-- Never commit `.env` or `.env.local` files — they are already in `.gitignore`
-- Run `npm run seed` any time you want to reset the database to demo data
-- On production, set `CLIENT_URL` to your frontend deployment URL to avoid CORS errors
-- Render free tier spins down after 15 minutes of inactivity — first request may be slow
+- `.env` and `.env.local` are in `.gitignore` — never commit them
+- Run `npm run seed` to reset the database to demo data at any time
+- Set `CLIENT_URL` on Render to your Vercel URL to avoid CORS issues
+- Render free tier sleeps after 15 min of inactivity — first request will be slow

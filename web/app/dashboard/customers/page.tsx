@@ -4,8 +4,9 @@ import { useCustomers, useCreateCustomer, useUpdateCustomer, useDeleteCustomer }
 import { useAuthStore } from '@/lib/authStore';
 import { Card, Table, Th, Td, Badge, Modal, Skeleton, EmptyState } from '@/components/ui';
 import { formatCurrency, getStatusColor, getPlanColor, getInitials } from '@/lib/utils';
-import { Search, Plus, Pencil, Trash2, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, Pencil, Trash2, Users, ChevronLeft, ChevronRight, Upload } from 'lucide-react';
 import { format } from 'date-fns';
+import Link from 'next/link';
 
 const PLANS = ['', 'free', 'starter', 'pro', 'enterprise'];
 const STATUSES = ['', 'active', 'inactive', 'churned', 'trial'];
@@ -51,24 +52,45 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-in">
-      <div className="flex items-start justify-between">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 mb-2">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Customers</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{total} total customers</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{total} total customers</p>
         </div>
         {isAdmin && (
-          <button onClick={openCreate} className="btn-primary flex items-center gap-2 text-xs sm:text-sm">
-            <Plus size={14} /> <span className="hidden sm:inline">Add Customer</span><span className="sm:hidden">Add</span>
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/dashboard/customers/import"
+              className="btn-secondary flex items-center gap-1.5 text-xs sm:text-sm px-3 py-2"
+            >
+              <Upload size={14} />
+              <span className="hidden sm:inline">Import</span>
+            </Link>
+            <button
+              onClick={openCreate}
+              className="btn-primary flex items-center gap-1.5 text-xs sm:text-sm px-3 py-2"
+            >
+              <Plus size={14} />
+              <span className="hidden sm:inline">Add Customer</span>
+              <span className="sm:hidden">Add</span>
+            </button>
+          </div>
         )}
       </div>
 
+      {/* Main Card */}
       <Card>
         {/* Filters */}
         <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 mb-4 sm:mb-5">
           <form onSubmit={handleSearch} className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input className="input pl-9" placeholder="Search customers..." value={searchInput} onChange={e => setSearchInput(e.target.value)} />
+            <input
+              className="input pl-9"
+              placeholder="Search customers..."
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+            />
           </form>
           <div className="flex gap-2">
             <select className="input flex-1 sm:w-36" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}>
@@ -96,7 +118,7 @@ export default function CustomersPage() {
                   <Th>Status</Th>
                   <Th className="hidden md:table-cell">MRR</Th>
                   <Th className="hidden lg:table-cell">Joined</Th>
-                  {isAdmin && <Th className="text-right">Actions</Th>}
+                  <Th className="text-right">Actions</Th>
                 </tr>
               </thead>
               <tbody>
@@ -118,21 +140,22 @@ export default function CustomersPage() {
                     <Td><Badge className={getStatusColor(c.status)}>{c.status}</Badge></Td>
                     <Td className="hidden md:table-cell font-medium text-gray-900 dark:text-white text-sm">{c.mrr ? formatCurrency(c.mrr) : '—'}</Td>
                     <Td className="hidden lg:table-cell text-gray-500 text-sm">{format(new Date(c.joinedAt), 'MMM d, yyyy')}</Td>
-                    {isAdmin && (
-                      <Td>
-                        <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => openEdit(c)} className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded transition-colors">
-                            <Pencil size={13} />
-                          </button>
-                          <button onClick={() => openDelete(c)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </Td>
-                    )}
-                    {!isAdmin && (
-                      <Td><span className="text-xs text-gray-300 dark:text-gray-700">View only</span></Td>
-                    )}
+                    <Td>
+                      <div className="flex items-center justify-end gap-1">
+                        {isAdmin ? (
+                          <>
+                            <button onClick={() => openEdit(c)} className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded transition-colors">
+                              <Pencil size={13} />
+                            </button>
+                            <button onClick={() => openDelete(c)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
+                              <Trash2 size={13} />
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-xs text-gray-300 dark:text-gray-700 pr-1">View only</span>
+                        )}
+                      </div>
+                    </Td>
                   </tr>
                 ))}
               </tbody>

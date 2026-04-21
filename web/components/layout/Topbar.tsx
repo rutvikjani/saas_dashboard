@@ -16,8 +16,7 @@ export default function Topbar({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
   ];
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 flex items-center px-4 sm:px-6 gap-3">
-      {/* Hamburger - mobile only */}
+      <header className="h-16 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 flex items-center px-4 sm:px-6 gap-3">
       <button
         onClick={onMobileMenuToggle}
         className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
